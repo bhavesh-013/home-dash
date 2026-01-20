@@ -75,7 +75,40 @@ function getColor(card) {
       alert("🔒 This feature is available for Premium users only.");
   });
 
-  
+  const addBtn = document.getElementById("addBtn");
+const addPanel = document.getElementById("addPanel");
+const addDevice = document.getElementById("addDevice");
+const deviceType = document.getElementById("deviceType");
+const grid = document.querySelector(".grid");
+
+addBtn.addEventListener("click", () => {
+  addPanel.style.display =
+    addPanel.style.display === "flex" ? "none" : "flex";
+});
+
+addDevice.addEventListener("click", () => {
+  const type = deviceType.value;
+
+  const card = document.createElement("div");
+  card.className = "card glow-blue";
+  card.dataset.device = type;
+
+  card.innerHTML = `
+    <i class="fas fa-${type === "light" ? "lightbulb" :
+                       type === "camera" ? "video" :
+                       type === "fan" ? "fan" : "wifi"}"></i>
+    <h3>${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+    <p>OFF</p>
+    <label class="toggle">
+      <input type="checkbox">
+      <span class="slider"></span>
+    </label>
+  `;
+
+  grid.appendChild(card);
+  addPanel.style.display = "none";
+});
+
 
 
 

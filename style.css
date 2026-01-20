@@ -13,12 +13,19 @@ body {
   display: flex;
   min-height: 100vh;
 }
+
 .sidebar {
   width: 260px;
   padding: 40px 25px;
   background: rgba(255,255,255,0.35);
   backdrop-filter: blur(20px);
   border-right: 1px solid rgba(255,255,255,0.3);
+}
+.sidebar .nav-section {
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+  justify-content: space-between;
 }
 
 .brand {
@@ -49,9 +56,8 @@ body {
   opacity: 0.6;
 }
 .secure-status {
-  margin-top: 350px;
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: center;
   gap: 10px;
   font-weight: 600;
@@ -221,5 +227,61 @@ header p {
   padding: 12px 18px;
   border-radius: 8px;
   border: none;
+  cursor: pointer;
+}
+.add-btn {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.add-btn:hover {
+  transform: scale(1.1);
+}
+
+.add-panel {
+  position: fixed;
+  right: 30px;
+  bottom: 110px;
+  width: 220px;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(15px);
+  color: white;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.add-panel h3 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.add-panel select,
+.add-panel button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+}
+
+.add-panel button {
+  background: #4CAF50;
+  color: white;
   cursor: pointer;
 }
