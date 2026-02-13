@@ -1,25 +1,32 @@
-document.querySelectorAll('.card').forEach(card => {
-  const toggle = card.querySelector('.toggle input');
-  const status = card.querySelector('p');
+const STORAGE_KEY = "securra_state";
 
-  toggle.addEventListener('change', () => {
-    card.classList.remove('glow-sage','glow-blue','glow-amber','glow-red');
+function saveState() {
+  const data = [];
 
-    if (toggle.checked) {
-      const color = getColor(card);
-      card.classList.add('glow-' + color);
-      switch(card.dataset.device) {
-        case 'door': status.innerText = 'LOCKED'; break;
-        case 'camera': status.innerText = 'LIVE'; break;
-        case 'light': status.innerText = 'ON'; break;
-        case 'alarm': status.innerText = 'ARMED'; break;
-        default: status.innerText = 'ON';
-      }
-    } else {
-      status.innerText = 'OFF';
-    }
+  document.querySelectorAll(".card").forEach(card => {
+    data.push({
+      name: card.querySelector("h3").innerText,
+      checked: card.querySelector("input").checked
+    });
   });
-});
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadState() {
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (!data) return;
+
+  document.querySelectorAll(".card").forEach(card => {
+    const name = card.querySelector("h3").innerText;
+    const saved = data.find(d => d.name === name);
+    if (!saved) return;
+
+    const toggle = card.querySelector("input");
+    toggle.checked = saved.checked;
+    applyDeviceUI(card, toggle.checked);
+  });
+}
 
 function getColor(card) {
   switch(card.dataset.device) {
@@ -31,73 +38,102 @@ function getColor(card) {
   }
 }
 
+function getText(card, state){
+  if(!state) return "OFF";
 
-  const cameraBtn = document.getElementById("camera");
-  const app = document.querySelector(".app");
-  const cam = document.getElementById("cam");
-  const back = document.getElementById("back");
+  switch(card.dataset.device){
+    case 'door': return 'LOCKED';
+    case 'camera': return 'LIVE';
+    case 'light': return 'ON';
+    case 'alarm': return 'ARMED';
+    default: return 'ON';
+  }
+}
 
-  cameraBtn.addEventListener("click", () => {
-    app.style.display = "none";
-    cam.style.display = "block";
+function applyDeviceUI(card, state){
+  const status = card.querySelector("p");
+
+  card.classList.remove('glow-sage','glow-blue','glow-amber','glow-red');
+
+  status.innerText = getText(card,state);
+
+  if(state){
+    card.classList.add('glow-' + getColor(card));
+  }
+}
+
+function attachToggle(card){
+  const toggle = card.querySelector("input");
+
+  toggle.addEventListener("change", ()=>{
+    applyDeviceUI(card, toggle.checked);
+    saveState();
   });
+}
 
-  back.addEventListener("click", () => {
-    cam.style.display = "none";
-    app.style.display = "flex";
-  });
+document.querySelectorAll(".card").forEach(attachToggle);
+
+window.addEventListener("DOMContentLoaded", loadState);
+
+const cameraBtn = document.getElementById("camera");
+const app = document.querySelector(".app");
+const cam = document.getElementById("cam");
+const back = document.getElementById("back");
+
+cameraBtn.onclick = () => {
+  app.style.display = "none";
+  cam.style.display = "grid";
+};
+
+back.onclick = () => {
+  cam.style.display = "none";
+  app.style.display = "flex";
+};
+
+const settings = document.getElementById("settings");
+const settingsBtn = document.getElementById("settingsBtn");
+const backFromSettings = document.getElementById("backFromSettings");
+
+settingsBtn.onclick = ()=>{
+  app.style.display = "none";
+  cam.style.display = "none";
+  settings.style.display = "block";
+};
+
+backFromSettings.onclick = ()=>{
+  settings.style.display = "none";
+  app.style.display = "flex";
+};
+
+aiCamera.onclick = ()=>{
+  alert("This feature is available for Premium users only.");
+};
 
 
-  const settings = document.getElementById("settings");
-  const settingsBtn = document.getElementById("settingsBtn");
-
-  const backFromSettings = document.getElementById("backFromSettings");
-
-  
-  cameraBtn.addEventListener("click", () => {
-    app.style.display = "none";
-    settings.style.display = "none";
-    cam.style.display = "grid";
-  });
-
-  settingsBtn.addEventListener("click", () => {
-    app.style.display = "none";
-    cam.style.display = "none";
-    settings.style.display = "block";
-  });
-
-  backFromSettings.addEventListener("click", () => {
-    settings.style.display = "none";
-    app.style.display = "flex";
-  });
-
-  aiCamera.addEventListener("click", () => {
-      alert("🔒 This feature is available for Premium users only.");
-  });
-
-  const addBtn = document.getElementById("addBtn");
+const addBtn = document.getElementById("addBtn");
 const addPanel = document.getElementById("addPanel");
 const addDevice = document.getElementById("addDevice");
 const deviceType = document.getElementById("deviceType");
 const grid = document.querySelector(".grid");
 
-addBtn.addEventListener("click", () => {
-  addPanel.style.display =
-    addPanel.style.display === "flex" ? "none" : "flex";
-});
+addBtn.onclick = ()=>{
+  addPanel.style.display = addPanel.style.display === "flex" ? "none" : "flex";
+};
 
-addDevice.addEventListener("click", () => {
+addDevice.onclick = ()=>{
   const type = deviceType.value;
 
-  const card = document.createElement("div");
-  card.className = "card glow-blue";
-  card.dataset.device = type;
+  const icon = type==="light"?"lightbulb":
+               type==="camera"?"video":
+               type==="fan"?"fan":"wifi";
 
-  card.innerHTML = `
-    <i class="fas fa-${type === "light" ? "lightbulb" :
-                       type === "camera" ? "video" :
-                       type === "fan" ? "fan" : "wifi"}"></i>
-    <h3>${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+  const card = document.createElement("div");
+  card.className="card";
+  card.dataset.device=type;
+
+  card.innerHTML=`
+    <i class="fas fa-${icon}"></i>
+    <h3>${type.charAt(0).toUpperCase()+type.slice(1)}</h3>
     <p>OFF</p>
     <label class="toggle">
       <input type="checkbox">
@@ -106,12 +142,9 @@ addDevice.addEventListener("click", () => {
   `;
 
   grid.appendChild(card);
-  addPanel.style.display = "none";
-});
 
+  attachToggle(card);    
+  saveState();            
 
-
-
-
-
-
+  addPanel.style.display="none";
+};
